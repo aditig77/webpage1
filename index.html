@@ -344,6 +344,7 @@
     </style>
 </head>
 <body>
+    <button onclick="sendDummyLocation()">Send Dummy Location</button>
     <button id="startShareBtn">Start sharing my live location</button>
     <div class="container">
         <header class="header">
@@ -1232,6 +1233,37 @@
         alert("Geolocation not supported by your browser.");
       }
     });
+      // Dummy tourist data
+const dummyTourist = {
+  name: "Test User",
+  aadhaarNumber: "123456789012",
+  emergencyContact: "9876543210",
+  familyContact: "9123456780",
+  latitude: 19.0760,   // Mumbai latitude
+  longitude: 72.8777   // Mumbai longitude
+};
+
+// Give a unique ID to the tourist
+const touristID = "T001";
+
+// Function to send dummy location to Firebase
+function sendDummyLocation() {
+  firebase.database().ref('tourists/' + touristID).set(dummyTourist)
+    .then(() => {
+      alert("Dummy location sent to Firebase!");
+      console.log("Dummy tourist added:", dummyTourist);
+    })
+    .catch((err) => {
+      console.error("Error sending dummy location:", err);
+    });
+}
+
+// Optional: Automatically update location every 10 seconds to simulate live movement
+setInterval(() => {
+  dummyTourist.latitude += (Math.random() - 0.5) * 0.001;  // small random change
+  dummyTourist.longitude += (Math.random() - 0.5) * 0.001;
+  firebase.database().ref('tourists/' + touristID).set(dummyTourist);
+}, 10000);
   </script>
 </body>
 </html>
