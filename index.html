@@ -1180,90 +1180,42 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
-  <script>
-    // --- SAME Firebase Config as Page 2 ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyCMNY0CCsEGBkdD1HBM-Rs31ASdFJ9Qv18",
-      authDomain: "smart-tourist-safety-system.firebaseapp.com",
-      databaseURL: "https://smart-tourist-safety-system-default-rtdb.firebaseio.com",
-      projectId: "smart-tourist-safety-system",
-      storageBucket: "smart-tourist-safety-system.firebasestorage.app",
-      messagingSenderId: "907315597836",
-      appId: "1:907315597836:web:e3fb661ee819d47484d429",
-      measurementId: "G-EB4KF0Q2E0"
+ <script>
+  // Use the same Firebase config as Page 2
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMNY0CCsEGBkdD1HBM-Rs31ASdFJ9Qv18",
+    authDomain: "smart-tourist-safety-system.firebaseapp.com",
+    databaseURL: "https://smart-tourist-safety-system-default-rtdb.firebaseio.com",
+    projectId: "smart-tourist-safety-system",
+    storageBucket: "smart-tourist-safety-system.firebasestorage.app",
+    messagingSenderId: "907315597836",
+    appId: "1:907315597836:web:e3fb661ee819d47484d429",
+    measurementId: "G-EB4KF0Q2E0"
+  };
+
+  // Initialize Firebase app
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Function to send dummy location
+  function sendDummyLocation() {
+    const dummyID = "TST-001"; // Any test ID
+    const dummyData = {
+      latitude: 15.4909,   // Example coordinates (Goa)
+      longitude: 73.8278,
+      timestamp: Date.now(),
+      name: "Test Tourist",
+      emergencyContact: "9999999999"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Generate a unique ID for this tourist
-    const touristID = "tourist_" + Math.floor(Math.random() * 100000);
-
-    // Initialize Leaflet map
-    const map = L.map('map').setView([20.5937, 78.9629], 5); // India default
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let marker;
-
-    // Start sharing location when button is clicked
-    document.getElementById("startShareBtn").addEventListener("click", () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.watchPosition((position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          // Update marker on the tourist's own map
-          if (marker) {
-            marker.setLatLng([lat, lng]);
-          } else {
-            marker = L.marker([lat, lng]).addTo(map).bindPopup("You are here");
-          }
-          map.setView([lat, lng], 13);
-
-          // Push live location to Firebase
-          db.ref("tourists/" + touristID).set({
-            latitude: lat,
-            longitude: lng,
-            timestamp: new Date().toISOString()
-          });
-        });
-      } else {
-        alert("Geolocation not supported by your browser.");
-      }
-    });
-      // Dummy tourist data
-const dummyTourist = {
-  name: "Test User",
-  aadhaarNumber: "123456789012",
-  emergencyContact: "9876543210",
-  familyContact: "9123456780",
-  latitude: 19.0760,   // Mumbai latitude
-  longitude: 72.8777   // Mumbai longitude
-};
-
-// Give a unique ID to the tourist
-const touristID = "T001";
-
-// Function to send dummy location to Firebase
-function sendDummyLocation() {
-  firebase.database().ref('tourists/' + touristID).set(dummyTourist)
-    .then(() => {
-      alert("Dummy location sent to Firebase!");
-      console.log("Dummy tourist added:", dummyTourist);
-    })
-    .catch((err) => {
-      console.error("Error sending dummy location:", err);
-    });
-}
-
-// Optional: Automatically update location every 10 seconds to simulate live movement
-setInterval(() => {
-  dummyTourist.latitude += (Math.random() - 0.5) * 0.001;  // small random change
-  dummyTourist.longitude += (Math.random() - 0.5) * 0.001;
-  firebase.database().ref('tourists/' + touristID).set(dummyTourist);
-}, 10000);
-  </script>
+    db.ref('tourists/' + dummyID).set(dummyData)
+      .then(() => {
+        alert("Dummy location sent!");
+      })
+      .catch((error) => {
+        alert("Error sending dummy location: " + error);
+      });
+  }
+</script>
 </body>
 </html>
