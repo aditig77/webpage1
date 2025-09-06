@@ -341,6 +341,7 @@
     </style>
 </head>
 <body>
+    <button id="startShareBtn">Start sharing my live location</button>
     <div class="container">
         <header class="header">
             <h1>🛡️ Smart Tourist Safety System</h1>
@@ -1168,6 +1169,54 @@
         console.log('🛡️ Smart Tourist Safety System Loaded Successfully');
         console.log('📱 Features: Digital ID, AI Anomaly Detection, Blockchain Registry, IoT Integration');
         console.log('🔧 Keyboard Shortcuts: F1=SOS, F2=Share Location, Ctrl+V=Voice SOS, Ctrl+Shift+D=Dark Mode');
-    </script>
+    </script> 
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script> 
+    <script>
+  const firebaseConfig = {
+  apiKey: "AIzaSyCMNY0CCsEGBkdD1HBM-Rs31ASdFJ9Qv18",
+  authDomain: "smart-tourist-safety-system.firebaseapp.com",
+  databaseURL: "https://smart-tourist-safety-system-default-rtdb.firebaseio.com",
+  projectId: "smart-tourist-safety-system",
+  storageBucket: "smart-tourist-safety-system.firebasestorage.app",
+  messagingSenderId: "907315597836",
+  appId: "1:907315597836:web:e3fb661ee819d47484d429",
+  measurementId: "G-EB4KF0Q2E0"
+};
+  // ----------------------------------------------------------------------------------
+
+  // Initialize (only once per page)
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Optional: allow user to start sharing via a button (safer UX)
+  document.getElementById('startShareBtn').addEventListener('click', function() {
+    if (!navigator.geolocation) {
+      alert('Geolocation not supported by your browser');
+      return;
+    }
+
+    // Watch position continuously
+    navigator.geolocation.watchPosition(function(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      // Save under "tourists/user1" — you can change user1 to a unique id later
+      db.ref('tourists/user1').set({
+        latitude: lat,
+        longitude: lng,
+        timestamp: Date.now()
+      });
+
+    }, function(err) {
+      console.error('Geolocation error:', err);
+      alert('Could not get location. Allow location access and try again.');
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 1000
+    });
+  });
+</script>
 </body>
 </html>
