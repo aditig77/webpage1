@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Tourist Safety System</title>
+     <!-- Leaflet Map Library -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
         * {
             margin: 0;
@@ -1170,53 +1173,65 @@
         console.log('📱 Features: Digital ID, AI Anomaly Detection, Blockchain Registry, IoT Integration');
         console.log('🔧 Keyboard Shortcuts: F1=SOS, F2=Share Location, Ctrl+V=Voice SOS, Ctrl+Shift+D=Dark Mode');
     </script> 
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script> 
-    <script>
-  const firebaseConfig = {
-  apiKey: "AIzaSyCMNY0CCsEGBkdD1HBM-Rs31ASdFJ9Qv18",
-  authDomain: "smart-tourist-safety-system.firebaseapp.com",
-  databaseURL: "https://smart-tourist-safety-system-default-rtdb.firebaseio.com",
-  projectId: "smart-tourist-safety-system",
-  storageBucket: "smart-tourist-safety-system.firebasestorage.app",
-  messagingSenderId: "907315597836",
-  appId: "1:907315597836:web:e3fb661ee819d47484d429",
-  measurementId: "G-EB4KF0Q2E0"
-};
-  // ----------------------------------------------------------------------------------
+  
 
-  // Initialize (only once per page)
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
-  // Optional: allow user to start sharing via a button (safer UX)
-  document.getElementById('startShareBtn').addEventListener('click', function() {
-    if (!navigator.geolocation) {
-      alert('Geolocation not supported by your browser');
-      return;
-    }
+  <script>
+    // --- SAME Firebase Config as Page 2 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMNY0CCsEGBkdD1HBM-Rs31ASdFJ9Qv18",
+      authDomain: "smart-tourist-safety-system.firebaseapp.com",
+      databaseURL: "https://smart-tourist-safety-system-default-rtdb.firebaseio.com",
+      projectId: "smart-tourist-safety-system",
+      storageBucket: "smart-tourist-safety-system.firebasestorage.app",
+      messagingSenderId: "907315597836",
+      appId: "1:907315597836:web:e3fb661ee819d47484d429",
+      measurementId: "G-EB4KF0Q2E0"
+    };
 
-    // Watch position continuously
-    navigator.geolocation.watchPosition(function(position) {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-      // Save under "tourists/user1" — you can change user1 to a unique id later
-      db.ref('tourists/user1').set({
-        latitude: lat,
-        longitude: lng,
-        timestamp: Date.now()
-      });
+    // Generate a unique ID for this tourist
+    const touristID = "tourist_" + Math.floor(Math.random() * 100000);
 
-    }, function(err) {
-      console.error('Geolocation error:', err);
-      alert('Could not get location. Allow location access and try again.');
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 1000
+    // Initialize Leaflet map
+    const map = L.map('map').setView([20.5937, 78.9629], 5); // India default
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+
+    // Start sharing location when button is clicked
+    document.getElementById("startShareBtn").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          // Update marker on the tourist's own map
+          if (marker) {
+            marker.setLatLng([lat, lng]);
+          } else {
+            marker = L.marker([lat, lng]).addTo(map).bindPopup("You are here");
+          }
+          map.setView([lat, lng], 13);
+
+          // Push live location to Firebase
+          db.ref("tourists/" + touristID).set({
+            latitude: lat,
+            longitude: lng,
+            timestamp: new Date().toISOString()
+          });
+        });
+      } else {
+        alert("Geolocation not supported by your browser.");
+      }
     });
-  });
-</script>
+  </script>
 </body>
 </html>
