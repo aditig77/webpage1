@@ -7,6 +7,9 @@
      <!-- Leaflet Map Library -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -1197,25 +1200,43 @@
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Function to send dummy location
-  function sendDummyLocation() {
-    const dummyID = "TST-001"; // Any test ID
-    const dummyData = {
-      latitude: 15.4909,   // Example coordinates (Goa)
-      longitude: 73.8278,
-      timestamp: Date.now(),
-      name: "Test Tourist",
-      emergencyContact: "9999999999"
-    };
+ // 🔹 Send Dummy Location
+    function sendDummyLocation() {
+      const touristID = "TEST-1234"; // Dummy ID
+      const lat = 28.6129; // India Gate latitude
+      const lng = 77.2295; // India Gate longitude
 
-    db.ref('tourists/' + dummyID).set(dummyData)
-      .then(() => {
-        alert("Dummy location sent!");
-      })
-      .catch((error) => {
-        alert("Error sending dummy location: " + error);
+      db.ref("tourists/" + touristID).set({
+        name: "Test Tourist",
+        lat: lat,
+        lng: lng,
+        timestamp: Date.now()
       });
-  }
-</script>
+
+      alert("✅ Dummy location sent to Firebase!");
+    }
+
+    // 🔹 Share Real Location
+    function shareLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const touristID = "LIVE-1234";
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          db.ref("tourists/" + touristID).set({
+            name: document.getElementById("touristName").value || "Unnamed Tourist",
+            lat: lat,
+            lng: lng,
+            timestamp: Date.now()
+          });
+
+          alert("✅ Live location shared to Firebase!");
+        });
+      } else {
+        alert("Geolocation not supported in this browser.");
+      }
+    }
+  </script>
 </body>
 </html>
